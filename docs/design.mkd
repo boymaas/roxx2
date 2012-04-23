@@ -1,0 +1,78 @@
+# Roxx audio file render dsl
+
+The roxx dsl let you compose sound files using part of mp3's or external
+processes for rendering.  In abstract terms you could see any audio mix of
+a composition of one or more audio sources.
+
+Sources can be SoundFiles, Processes (sound generators), or even an AudioMix?
+
+Domain language of mixers will be used to specify Tracks and layers.
+
+In my understanding mixes are composed out of tracks, and tracks have the unique property to segment an
+audiofile into themes.
+
+A soundfile may be rendered by an renderer. Capable of interpreting the
+composition and rendering it. Transforming the AudioMix datastructure into an
+executable command.
+
+## Architecture
+
+  SourceCompositeStructure => Player/Renderer => Output
+
+Datamodel is implemented only to hold information. Rendering is abstracted away
+based on which tool to use.
+
+## Composable module
+
+    module Roxx
+      class AudioMix
+        include Composable
+      end
+    end
+
+See the code in `lib/roxx/composable.rb`, and ofcourse `spec/lib/composable.rb`
+
+## Object model
+
+  AudioMix < Source
+    Track < Source
+      Process < Source
+      Effect < Source
+      AudioFile < Source
+        @sound_info
+        AudioFilePart < AudioFile
+
+## Gathering information
+
+Information to base information on can be extracted from the model. Information
+depends on the layer you are requesting from. On Track level `duration` is
+calculated from maximum `end` of all containing Sources, or if needed duration 
+is a fixed length.
+
+## Effects
+
+Effects are composed inside a composition. FadeIn or FadeOut could be a simple
+effect. It will be stacked on top of it.
+
+### AudioMix Level effects
+
+### Track Level effects
+
+Noise reduction is an example of a Track level effect.
+
+## Render
+
+    Renderable
+    
+Essentially walks the tree using the `{pre,post}_walk` functions as defined in
+composable.
+
+    audio_mix.pre_walk do |component|
+      case component
+      when Track
+        # build params for track
+      when AudioFile
+        # build params for audio file
+      end
+    end
+
