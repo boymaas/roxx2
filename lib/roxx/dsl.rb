@@ -1,32 +1,66 @@
 module Roxx
   module Dsl
-    class LibraryCommand
-      attr_reader :repository
+    module Classes
+      class LibraryCommand
+        attr_reader :library
 
-      def initialize library, &block
-        @repository = library 
-        instance_eval(&block)
+        def initialize library, &block
+          @library = library 
+          instance_eval(&block)
+        end
+
+        def set name, options = {}
+          @library.set name, options
+        end
+
       end
 
-      def set name, options = {}
-        @repository.set name, options
+      class TrackCommand
+        def initialize track, library, logger, &block
+          @library = library
+          @track = track
+          @logger = logger
+          instance_eval(&block)
+        end
+
+        def sound name, options = {}
+          @track.add_sound(@library.fetch(name))
+        rescue Roxx::Library::SoundNotFound
+          @logger.log "cannot find sound [#{name}] in library"
+        end
       end
 
+      class AudioMixCommand
+        def initialize audio_mix, library, logger, &block
+          @library = library
+          @audio_mix = audio_mix
+          @logger = logger
+          instance_eval(&block)
+        end
+
+        def library(&block)
+          LibraryCommand.new @library, &block
+        end
+
+        def track name, &block
+          track = Track.new
+          TrackCommand.new track, @library, @logger, &block
+          @audio_mix.add_track(track) 
+        end
+      end
     end
 
-    class TrackCommand
-      def initialize track, library, logger, &block
-        @repository = library
-        @track = track
-        @logger = logger
-        instance_eval(&block)
-      end
+    def audio_mix logger=nil, &block
+      logger ||= Roxx::Logger.new
+      library = Roxx::Library.new
+      audio_mix = Roxx::AudioMix.new
 
-      def sound name, options = {}
-        @track.add_sound(@repository.fetch(name))
-      rescue Library::SoundNotFound
-        @logger.log "cannot find sound [#{name}] in library"
-      end
+      Classes::AudioMixCommand.new audio_mix, library, logger, &block
+
+      audio_mix
     end
+
   end
+
+
 end

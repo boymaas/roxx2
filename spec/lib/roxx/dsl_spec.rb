@@ -1,7 +1,26 @@
 require 'roxx/dsl'
 require 'roxx/library'
+require 'roxx/track'
+require 'roxx/audio_mix'
+require 'roxx/logger'
 
-module Roxx::Dsl 
+module Roxx::Dsl
+  describe "#audio_mix" do
+    class Dummy
+      extend Roxx::Dsl
+    end
+    it "should call AudioMixCommand" do
+      Classes::AudioMixCommand.should_receive(:new)
+
+      Dummy.audio_mix do
+        library do
+        end
+      end
+    end
+  end
+end
+
+module Roxx::Dsl::Classes
 
   # audio_mix do
   #   library do
@@ -65,7 +84,7 @@ module Roxx::Dsl
       end
       context "when sound is not in lib" do
         it "raises Library::SoundNotFound" do
-          library.should_receive(:fetch).with(:sound_1).and_raise(Library::SoundNotFound)
+          library.should_receive(:fetch).with(:sound_1).and_raise(Roxx::Library::SoundNotFound)
           track.should_not_receive(:add_sound)
           logger.should_receive(:log).with("cannot find sound [sound_1] in library")
 
@@ -73,7 +92,41 @@ module Roxx::Dsl
             sound :sound_1
           end
         end
+      end
+    end
+  end
 
+  describe AudioMixCommand do
+
+    let(:library) { stub(:library) }
+    let(:audio_mix) { stub(:audio_mix) }
+    let(:logger) { stub(:logger) }
+
+    context "#library" do
+      it "evaluates the library block" do
+        library = stub(:library)
+        code_block = stub(:code_block)
+        LibraryCommand.should_receive(:new).with(library) # and code block
+        described_class.new audio_mix, library, logger do
+          library do
+            set :sound_1
+          end
+        end
+      end
+      
+    end
+    context "#track" do
+      it "evaluates the track block" do
+        atrack = stub(:track)
+        Roxx::Track.stub(:new => atrack)
+        TrackCommand.should_receive(:new).with(atrack,library,logger)
+        audio_mix.should_receive(:add_track).with(atrack)
+
+        described_class.new audio_mix, library, logger do
+          track :track_1 do
+            sound :sound_1
+          end
+        end
       end
     end
   end

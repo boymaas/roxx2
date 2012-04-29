@@ -1,12 +1,14 @@
-class Library < Hash
-  class SoundNotFound < StandardError; end
+module Roxx
+  class Library < Hash
+    class SoundNotFound < StandardError; end
 
 
-  alias :set :[]=
+    alias :set :[]=
 
-  def fetch(*args)
-    super
-  rescue IndexError => e
-    raise SoundNotFound, e
+      def fetch(*args)
+        super
+      rescue IndexError => e
+        raise SoundNotFound, e
+      end
   end
 end
