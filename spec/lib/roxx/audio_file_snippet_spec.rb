@@ -1,11 +1,11 @@
 require 'roxx/audio_file_snippet'
 
-describe AudioFileSnippet do
+describe Roxx::AudioFileSnippet do
   let(:audio_file) { stub(:audio_file, :duration_in_seconds => 10.0) }
   context "#cut" do
     subject { described_class.cut(audio_file, 0.0, 10.0) }
 
-    it { should be_an_instance_of(AudioFileSnippet) }
+    it { should be_an_instance_of(described_class) }
     
   end
   context "#offset" do

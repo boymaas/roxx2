@@ -1,6 +1,6 @@
 require 'roxx/audio_file_info'
 
-describe AudioFileInfo do
+describe Roxx::AudioFileInfo do
   before do
     described_class.new('path/to/audiofile.wav') 
   end

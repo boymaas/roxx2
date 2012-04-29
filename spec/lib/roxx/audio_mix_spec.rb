@@ -1,6 +1,6 @@
 require 'roxx/audio_mix'
 
-describe AudioMix do
+describe Roxx::AudioMix do
   it "has tracks" do
     subject.tracks.should == []
   end

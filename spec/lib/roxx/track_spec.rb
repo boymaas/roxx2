@@ -1,7 +1,7 @@
 require 'roxx/sound'
 require 'roxx/track'
 
-describe Track do
+describe Roxx::Track do
   it "has sounds" do
     subject.sounds.should == []
   end
@@ -13,7 +13,7 @@ describe Track do
       source, pos, duration = stub(:source), 0, 10
 
       sound = stub(:sound)
-      Sound.should_receive(:factor).with(source, pos, duration).and_return(sound)
+      Roxx::Sound.should_receive(:factor).with(source, pos, duration).and_return(sound)
 
       subject.add_sound(source, pos, duration)
 

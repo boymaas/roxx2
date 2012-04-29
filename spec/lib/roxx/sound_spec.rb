@@ -1,9 +1,9 @@
 require 'roxx/sound'
 
-describe Sound do
+describe Roxx::Sound do
   context "#factor" do
     let(:source) { stub(:source) }
-    let(:sound) { Sound.factor(source, 10, 20)  }
+    let(:sound) { described_class.factor(source, 10, 20)  }
     it "sets source correctly" do
       sound.source.should == source
     end  

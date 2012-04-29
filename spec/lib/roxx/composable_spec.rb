@@ -1,6 +1,6 @@
 require 'roxx/composable'
 
-describe Composable do
+describe Roxx::Composable do
   context "#children" do
     it "is initialized with an array" do
       subject.children.should == []
