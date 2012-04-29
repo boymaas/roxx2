@@ -1,133 +1,228 @@
-class Composable
-  attr_accessor :children, :parent
+require 'roxx/composable'
 
-  def initialize(parent=:root)
-    @children = []
-    @parent = parent
-  end
-
-  def add_child(child)
-    child.parent = self
-    self.children << child
-  end
-
-  alias :<<  :add_child
-
-  def add_children(children)
-    children.each do |child|
-      add_child(child)
-    end
-  end
-
-  def pre_walk(&block)
-    values = [ block.call(self) ]
-    children.each do |chld| 
-      values += chld.pre_walk(&block) 
-    end
-    values
-  end
-
-  def post_walk(&block)
-    values = []
-    children.each do |chld| 
-      values += chld.post_walk(&block) 
-    end
-    values += [ block.call(self) ]
-    values
+class CmdlineSoundTool
+  def determine_duration_in_seconds
+    raise "#{self.class}.duration_in_seconds needs to be implemented."
   end
 end
 
-
-class Sound < Composable
+class EcaSound < CmdlineSoundTool
+  def determine_duration_in_seconds(path)
+    %x[ecalength -s #{path} 2>/dev/null].chomp.strip.to_f
+  end
 end
 
-class AudioMix < Composable
+class AudioFileInfo
+  attr_reader :path
+  def initialize(path, cmdline_sound_tool=nil)
+    @path = Pathname.new( path )
+    @cmdline_sound_tool = cmdline_sound_tool || EcaSound.new
+    @duration_in_seconds = nil
+  end
+
+  def duration_in_seconds
+      @duration_in_seconds ||= @cmdline_sound_tool.determine_duration_in_seconds(@path)
+  end
+end
+
+class AudioFile
+  attr_reader :path
+
+  def initialize(path)
+    @path = Pathname.new(path)
+    @audio_file_info = AudioFileInfo.new(path)
+  end
+
+  def duration_in_seconds
+    @audio_file_info.duration_in_seconds
+  end
+end
+
+class AudioFileSnippet
+  attr_reader :offset, :duration_in_seconds
+  def initialize(audio_file, offset, duration_in_seconds)
+    @audio_file = audio_file
+    @offset = offset
+    @duration_in_seconds = duration_in_seconds
+  end
+
+  def self.cut(audio_file, offset, duration)
+    new(audio_file, offset, duration)
+  end
+
+end
+
+class Sound
+  attr_reader :source, :position, :duration
+
+  def initialize(source, position, duration)
+    @source = source
+    @position = position
+    @duration = duration
+  end
+
+  def self.factor(source, pos, duration)
+    new(source, pos, duration)
+  end
+end
+
+class Track
+  attr_accessor :sounds, :volume
+
+  def initialize
+    @sounds = []
+    @volume = 1
+  end
+
+  def add_sound(source, pos, duration)
+    @sounds << Sound.factor(source,pos,duration)
+  end
+
+end
+
+class AudioMix
+  attr_accessor :tracks, :volume
+
+  def initialize
+    @tracks = []
+    @volume = 1
+  end
+
+  def add_track track
+    @tracks << track
+  end
+
 end
 
 class Renderer
 end
 
-describe Composable do
-  context "#children" do
-    it "is initialized with an array" do
-      subject.children.should == []
-    end
+describe AudioFileInfo do
+  before do
+    described_class.new('path/to/audiofile.wav') 
   end
-  context "#parent" do
-    it "is initialized with symbol :root" do
-      subject.parent.should == :root
-    end
-  end
-  context "#add_child" do
-    let(:added_source) {described_class.new}
-    let(:root) do
-      subject.add_child(added_source)    
-      subject
-    end
-    it "adds a child" do
-      root.children[0].should == added_source
-    end
-    it "sets the parent" do
-      root.children[0].parent.should == root
-    end
-  end
+  context "#path" do
+    let(:audio_file_info) { described_class.new('path/to/audiofile.wav') }
 
-  context "#<<" do
-    it "adds a child" do
-      root = described_class.new
-      root << ( added_source = described_class.new )
-
-      root.children.first.should == added_source 
+    it "returns correct path" do
+      audio_file_info.path.to_s.should == 'path/to/audiofile.wav'
+    end
+    it "path is a Pathname" do
+      audio_file_info.path.should be_an_instance_of(Pathname)
     end
   end
+  context "#duration_in_seconds" do
+    it "calculates correct duration" do
+      cmdline_soundtool = stub(:cmdline_sound_tool)
+      cmdline_soundtool.should_receive(:determine_duration_in_seconds).and_return(2)
 
-  context "#add_children" do
-    it "should call add_child number of times" do
-      subject.should_receive(:add_child).exactly(3).times
-      subject.add_children([stub,stub,stub])
+      audio_file_info = described_class.new('spec/to/audiofile.wav', cmdline_soundtool)
+
+      audio_file_info.duration_in_seconds.should == 2
+    end
+  end
+end
+
+describe AudioFile do
+
+  context "#path" do
+    let(:audio_file) { described_class.new('path/to/audiofile.wav') }
+
+    it "has a path" do
+      audio_file.path.to_s.should == 'path/to/audiofile.wav'
+    end
+    it "path is a Pathname" do
+      audio_file.path.should be_an_instance_of(Pathname)
     end
   end
 
-  context "walking the tree" do
-    def generate_sources count, parent=nil
-      Array.new(count) { described_class.new(parent) }
-    end
-    let(:children0) { generate_sources(2) }
-    let(:children1) { generate_sources(2) }
-    let(:root) do
-      root = described_class.new()
-      root.add_children( children0 )
-      root.children[0].add_children( children1 )
-      root
-    end
+  context "#duration_in_seconds" do
+    it "calculated correct duration" do
+      audio_file_info = stub(:audio_file_info)
+      audio_file_info.should_receive(:duration_in_seconds).and_return(10)
+      AudioFileInfo.stub(:new).and_return(audio_file_info)
 
-    context "#pre_walk" do
-      it "traverses the tree head first" do
-        values = root.pre_walk do |chld|
-          chld.object_id
-        end
-        values.should == ( [root] + 
-                             [ children0[0] ] + 
-                                 children1 + 
-                             children0[1..-1] ).map(&:object_id)
-      end
-    end
+      audio_file = described_class.new('path/to/audiofile.wav')
 
-    context "#post_walk" do
-      it "traverses the tree head last" do
-        values = root.post_walk do |chld|
-          chld.object_id
-        end
-        values.should == ( children1 + children0 + [root] ).map(&:object_id)
-      end
+      audio_file.duration_in_seconds.should == 10
     end
+  end
+end
 
+describe AudioFileSnippet do
+  let(:audio_file) { stub(:audio_file, :duration_in_seconds => 10.0) }
+  context "#cut" do
+    subject { described_class.cut(audio_file, 0.0, 10.0) }
+
+    it { should be_an_instance_of(AudioFileSnippet) }
+    
+  end
+  context "#offset" do
+    subject { described_class.cut(audio_file, 0.0, 10.0) }
+
+    it "starts at 0.0" do
+      subject.offset.should == 0.0
+    end
+  end
+  context "#duration_in_seconds" do
+    subject { described_class.cut(audio_file, 0.0, 10.0) }
+
+    it "has a duration" do
+      subject.duration_in_seconds.should == 10.0
+    end
+  end
+end
+
+describe Sound do
+  context "#factor" do
+    let(:source) { stub(:source) }
+    let(:sound) { Sound.factor(source, 10, 20)  }
+    it "sets source correctly" do
+      sound.source.should == source
+    end  
+    it "sets duration correctly" do
+      sound.duration.should == 20
+    end
+    it "sets position correctly" do
+      sound.position.should == 10
+    end
+  end
+end
+
+describe Track do
+  it "has sounds" do
+    subject.sounds.should == []
+  end
+  it "has a volume" do
+    subject.volume.should == 1
+  end
+  context "when a sound is added" do
+    it "correct sound is factored" do
+      source, pos, duration = stub(:source), 0, 10
+
+      sound = stub(:sound)
+      Sound.should_receive(:factor).with(source, pos, duration).and_return(sound)
+
+      subject.add_sound(source, pos, duration)
+
+      added_sound = subject.sounds.first 
+      added_sound.should == sound
+    end
   end
 end
 
 describe AudioMix do
-  it "has children" do
-    subject.children.should == []
+  it "has tracks" do
+    subject.tracks.should == []
+  end
+  it "has a volume" do
+    subject.volume.should == 1
+  end
+
+  it "can add tracks" do
+    track = stub(:track)
+    subject.add_track track
+    subject.tracks.should == [ track ]
   end
 end
 
