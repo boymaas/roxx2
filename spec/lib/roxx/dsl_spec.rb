@@ -1,4 +1,5 @@
 require 'roxx/dsl'
+require 'roxx/library'
 
 module Roxx::Dsl 
 
@@ -44,5 +45,37 @@ module Roxx::Dsl
     end
   end
 
+  describe TrackCommand do
+    context "#sound" do
+
+      let(:library) { stub(:library) }
+      let(:track) { stub(:track) }
+      let(:asound) { stub(:sound) }
+      let(:logger) { stub(:logger) }
+
+      context "when sound is in library" do
+        it "configures the sound" do
+          library.should_receive(:fetch).with(:sound_1).and_return(asound)
+          track.should_receive(:add_sound).with(asound)
+
+          described_class.new track, library, logger do
+            sound :sound_1
+          end
+        end
+      end
+      context "when sound is not in lib" do
+        it "raises Library::SoundNotFound" do
+          library.should_receive(:fetch).with(:sound_1).and_raise(Library::SoundNotFound)
+          track.should_not_receive(:add_sound)
+          logger.should_receive(:log).with("cannot find sound [sound_1] in library")
+
+          described_class.new track, library, logger do
+            sound :sound_1
+          end
+        end
+
+      end
+    end
+  end
 
 end

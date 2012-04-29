@@ -16,6 +16,12 @@ module Roxx
         value = subject.fetch :label
         value.should == :value
       end
+      it "raises when fetching a non existing value" do
+        expect {
+          subject.fetch :non_existing_value
+        }.to raise_error(Library::SoundNotFound)
+        
+      end
     end
   end
 end
