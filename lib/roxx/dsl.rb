@@ -4,6 +4,11 @@ module Roxx
       def perform &block
         instance_eval(&block)
       end
+
+      def raise_argument_condition_when boolean, opts = {}
+          message = opts.fetch(:and_display)
+          raise ArgumentError, message if boolean
+      end
     end
 
     class LibraryCommand < Command
@@ -20,13 +25,11 @@ module Roxx
         duration = options.delete(:duration) || nil
         path = options.delete(:path) || nil
 
-        unless path
-          raise ArgumentError, "need path to audio_file"
-        end
+        raise_argument_condition_when path.nil?,
+          :and_display => "need path to audio file"
 
-        unless options.keys.empty?
-          raise ArgumentError, "unknown options specified [#{options.keys * ','}]" 
-        end
+        raise_argument_condition_when !options.keys.empty?,
+          :and_display => "unknown options specified [#{options.keys * ','}]" 
 
         # lookup realpath so caching 
         # has correct key
@@ -35,6 +38,7 @@ module Roxx
 
         @library.set name, audio_file
       end
+
 
       def resolve_path path
         path = Pathname.new(path).realpath
