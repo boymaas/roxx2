@@ -24,9 +24,15 @@ module Roxx
         end
 
         def sound name, options = {}
-          @track.add_sound(@library.fetch(name))
+          offset = options.delete(:offset) || 0
+          duration = options.delete(:duration) || nil
+          unless options.keys.empty?
+            raise ArgumentError, "unknown options specified [#{options.keys * ','}]" 
+          end
+          @track.add_sound(@library.fetch(name), offset, duration)
         rescue Roxx::Library::SoundNotFound
           @logger.log "cannot find sound [#{name}] in library"
+          raise
         end
       end
 
@@ -50,16 +56,18 @@ module Roxx
       end
     end
 
-    def audio_mix logger=nil, &block
-      logger ||= Roxx::Logger.new
-      library = Roxx::Library.new
-      audio_mix = Roxx::AudioMix.new
 
-      Classes::AudioMixCommand.new audio_mix, library, logger, &block
 
-      audio_mix
-    end
+  end
 
+  def self.audio_mix logger=nil, &block
+    logger ||= Roxx::Logger.new
+    library = Roxx::Library.new
+    audio_mix = Roxx::AudioMix.new
+
+    Dsl::Classes::AudioMixCommand.new audio_mix, library, logger, &block
+
+    audio_mix
   end
 
 

@@ -4,15 +4,12 @@ require 'roxx/track'
 require 'roxx/audio_mix'
 require 'roxx/logger'
 
-module Roxx::Dsl
+module Roxx
   describe "#audio_mix" do
-    class Dummy
-      extend Roxx::Dsl
-    end
     it "should call AudioMixCommand" do
-      Classes::AudioMixCommand.should_receive(:new)
+      Dsl::Classes::AudioMixCommand.should_receive(:new)
 
-      Dummy.audio_mix do
+      Roxx::audio_mix do
         library do
         end
       end
@@ -73,13 +70,30 @@ module Roxx::Dsl::Classes
       let(:logger) { stub(:logger) }
 
       context "when sound is in library" do
-        it "configures the sound" do
+        it "configures the sound using defaults when no params supplied" do
           library.should_receive(:fetch).with(:sound_1).and_return(asound)
-          track.should_receive(:add_sound).with(asound)
+          track.should_receive(:add_sound).with(asound, 0, nil)
 
           described_class.new track, library, logger do
             sound :sound_1
           end
+        end
+        it "configures the sound with the params supplied" do
+          library.should_receive(:fetch).with(:sound_1).and_return(asound)
+          track.should_receive(:add_sound).with(asound, 10, 20)
+
+          described_class.new track, library, logger do
+            sound :sound_1, :offset => 10, :duration => 20
+          end
+        end
+      end
+      context "when unknown options specified" do
+        it "should raise" do
+          expect {
+            described_class.new track, library, logger do
+            sound :sound_1, :unknown_option => :foo
+            end
+          }.to raise_error(ArgumentError)
         end
       end
       context "when sound is not in lib" do
@@ -88,9 +102,11 @@ module Roxx::Dsl::Classes
           track.should_not_receive(:add_sound)
           logger.should_receive(:log).with("cannot find sound [sound_1] in library")
 
-          described_class.new track, library, logger do
-            sound :sound_1
-          end
+          expect {
+            described_class.new track, library, logger do
+              sound :sound_1
+            end
+          }.to raise_error( Roxx::Library::SoundNotFound )
         end
       end
     end
