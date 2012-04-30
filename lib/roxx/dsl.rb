@@ -57,10 +57,12 @@ module Roxx
       def sound(name, options = {})
         offset = options.delete(:offset) || 0
         duration = options.delete(:duration) || nil
-        unless options.keys.empty?
-          raise ArgumentError, "unknown options specified [#{options.keys * ','}]" 
-        end
+
+        raise_argument_condition_when !options.keys.empty?,
+          :and_display => "unknown options specified [#{options.keys * ','}]"   
+
         @track.add_sound(@library.fetch(name), offset, duration)
+
       rescue Roxx::Library::SoundNotFound
         @logger.log "cannot find sound [#{name}] in library"
         raise

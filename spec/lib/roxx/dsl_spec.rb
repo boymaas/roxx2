@@ -53,36 +53,53 @@ module Roxx::Dsl
     context "#audio_file" do
       let(:library) { stub(:library) }
       subject { described_class.new(library) }
-      it "stores the correct sounds" do
-        sound_name, sound_path, audio_file = 
-          :sound_1, stub(:sound_path), stub(:audio_file)
 
-        subject.should_receive(:resolve_path).and_return(sound_path)
-        
-        Roxx::AudioFile.should_receive(:cache).with(sound_path).and_return(audio_file)
-        library.should_receive(:set).with(sound_name, audio_file)
+      context "given: sound_path exists" do
+        it "stores the correct sounds" do
+          sound_name, sound_path, audio_file = 
+            :sound_1, stub(:sound_path), stub(:audio_file)
 
-        subject.perform do
-          audio_file sound_name, {:path => sound_path}
+          # given: sound_path is sold
+          subject.should_receive(:resolve_path).and_return(sound_path)
+
+          Roxx::AudioFile.should_receive(:cache).with(sound_path).and_return(audio_file)
+          library.should_receive(:set).with(sound_name, audio_file)
+
+          subject.perform do
+            audio_file sound_name, {:path => sound_path}
+          end
         end
       end
-      it "raises when path argument is missing" do
-        sound_name = :sound_1
-        expect {
-          subject.perform do
-            audio_file sound_name, {}
-          end
-        }.to raise_error(ArgumentError)
+      context "given: sound_path does not exists" do
+        it "raises PathDoesNotExist" do
+          expect {
+            subject.perform do
+            audio_file :sound_1, {:path => 'path/to/nonexiting.mp3'}
+            end
+          }.to raise_error(LibraryCommand::PathDoesNotExist)
+        end
       end
-      it "raises when unknown arguments are passed" do
-        sound_name = :sound_1
-        library = stub(:library).as_null_object
-        expect {
-          subject.perform do
+      context "given: path argument is missing" do
+        it "raises with ArgumentError" do
+          sound_name = :sound_1
+          expect {
+            subject.perform do
+            audio_file sound_name, {}
+            end
+          }.to raise_error(ArgumentError)
+        end
+      end
+      context "given: unknown arguments are passed in" do
+        it "raises with ArgumentError" do
+          sound_name = :sound_1
+          library = stub(:library).as_null_object
+          expect {
+            subject.perform do
             audio_file sound_name, :path => :blah, :unknown_option => :foo
-          end
-        }.to raise_error(ArgumentError)
-        
+            end
+          }.to raise_error(ArgumentError)
+
+        end
       end
     end
   end
@@ -97,7 +114,7 @@ module Roxx::Dsl
 
       subject { described_class.new( track, library, logger) }
 
-      context "when sound is in library" do
+      context "given: sound is in library" do
         it "configures the sound using defaults when no params supplied" do
           library.should_receive(:fetch).with(:sound_1).and_return(asound)
           track.should_receive(:add_sound).with(asound, 0, nil)
@@ -115,8 +132,8 @@ module Roxx::Dsl
           end
         end
       end
-      context "when unknown options specified" do
-        it "should raise" do
+      context "given: unknown options are specified" do
+        it "should raise an ArgumentError" do
           expect {
             subject.perform do
             sound :sound_1, :unknown_option => :foo
@@ -124,15 +141,19 @@ module Roxx::Dsl
           }.to raise_error(ArgumentError)
         end
       end
-      context "when sound is not in lib" do
+      context "given: sound is NOT in library" do
         it "raises Library::SoundNotFound" do
-          library.should_receive(:fetch).with(:sound_1).and_raise(Roxx::Library::SoundNotFound)
+          library.should_receive(:fetch).
+            with(:sound_1).
+            and_raise(Roxx::Library::SoundNotFound)
+
           track.should_not_receive(:add_sound)
+
           logger.should_receive(:log).with("cannot find sound [sound_1] in library")
 
           expect {
             subject.perform do
-            sound :sound_1
+              sound :sound_1
             end
           }.to raise_error( Roxx::Library::SoundNotFound )
         end
