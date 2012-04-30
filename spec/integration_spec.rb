@@ -26,6 +26,11 @@ module Roxx
         it "stored sound_1" do
           subject.fetch(:sound_1).should be_an_instance_of(AudioFile)
         end
+
+        it "determines correct duration of test mp3" do
+          sound_1 = subject.fetch(:sound_1)
+          sound_1.duration_in_seconds.should be_within(0.04).of(295.393)
+        end
       end
 
       context "audiomix" do
