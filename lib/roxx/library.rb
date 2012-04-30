@@ -1,14 +1,19 @@
 module Roxx
-  class Library < Hash
+  class Library
     class SoundNotFound < StandardError; end
 
+    def initialize
+      @repository = {}
+    end
 
-    alias :set :[]=
+    def set label, options
+      @repository[label] = options
+    end
 
-      def fetch(*args)
-        super
-      rescue IndexError => e
-        raise SoundNotFound, e
-      end
+    def fetch(label)
+      @repository.fetch(label)
+    rescue IndexError => e
+      raise SoundNotFound, e
+    end
   end
 end

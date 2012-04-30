@@ -17,3 +17,4 @@ test/version_tmp
 tmp
 .rvmrc
 lib/roxx/dsl_spike.rb
+.DS_Store

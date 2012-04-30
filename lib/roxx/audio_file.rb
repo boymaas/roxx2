@@ -1,3 +1,5 @@
+require 'md5'
+
 module Roxx
   class AudioFile
     attr_reader :path
@@ -9,6 +11,17 @@ module Roxx
 
     def duration_in_seconds
       @audio_file_info.duration_in_seconds
+    end
+
+    class << self
+      def cache path
+        @cache ||= {}
+        @cache[hash_of_path(path)] ||= self.new(path)
+      end
+
+      def hash_of_path path
+        MD5.hexdigest(path)
+      end
     end
   end
 end
