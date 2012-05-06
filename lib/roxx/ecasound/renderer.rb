@@ -1,22 +1,22 @@
 module Roxx
   module Ecasound
     class AudioMixRenderer
-      def initialize(audio_mix)
+      def initialize(audio_mix, idx_generator)
         @audio_mix = audio_mix 
-        @idx_generator = IdxGenerator.new
+        @idx_generator = idx_generator || IdxGenerator.new
+        @audio_mix_loopback = AudioMixLoopback.new(@audio_mix, @idx_generator)
       end
 
       def render
-        root_loopback = AudioMixLoopback.new(@audio_mix, @idx_generator)
-        root_loopback.to_params
+        @audio_mix_loopback.to_params
       end
     end
 
     class AudioMixLoopback < DelegateClass(Loopback)
       def initialize(audio_mix, idx_generator)
-        @loopback = Loopback.new(@idx_generator)
+        @loopback = Loopback.new(idx_generator)
         @loopback.channels = audio_mix.tracks.map do |track|
-          TrackLoopback.new(track, @idx_generator)
+          TrackLoopback.new(track, idx_generator)
         end
         super(@loopback)
       end
@@ -28,6 +28,7 @@ module Roxx
         @loopback.channels = track.sounds.map do |sound|
           SoundChannel.new(sound, idx_generator) 
         end
+        super(@loopback)
       end
     end
 
@@ -38,9 +39,10 @@ module Roxx
           Channel.factor(idx_generator,
                          sound.position,
                          sound.source.path,
-                         sound.souce.offset,
+                         sound.source.offset,
                          sound.duration,
                          volume=1.0)
+        super(@channel)
       end
     end
   end

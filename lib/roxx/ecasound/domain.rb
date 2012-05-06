@@ -10,8 +10,10 @@ module Roxx
     end
 
     class Loopback
+
       attr_accessor :volume
       attr_accessor :channels
+
       def initialize(idx_generator)
         @idx_generator = idx_generator
         @volume = 1
@@ -29,7 +31,9 @@ module Roxx
     end
 
     class Channel
+
       attr_accessor :volume, :audio_file_path, :start_at, :offset, :duration
+
       def initialize(idx_generator)
         @idx_generator = idx_generator
         @volume = 1
