@@ -2,6 +2,10 @@
 
 Roxx is a small DSL to render audiofiles using the ecasound audiofile.
 
+## Author
+
+Boy Maas 
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -47,6 +51,16 @@ Rendering an audio mix is also pretty straight forward. Just pass the returned a
 and a target path.
 
     Roxx::ecasound_render(@audio_mix, 'output/target.mp3')
+
+### Caveats
+
+* ecasound does not support seeking in mp3 files. So defining a part of an mp3
+  file will result in an error to setup a chain.
+
+### Todo
+
+* since mp3 seeks are not permitted. convert mp3 to an intermediate format on rendering when detected searches
+  are needed. Place this in the renderer.
 
 ## Contributing
 

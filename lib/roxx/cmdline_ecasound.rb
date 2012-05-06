@@ -7,7 +7,7 @@ module Roxx
     end
 
     def execute(params)
-      %x[ecasound #{params.flatten.join(' ')} >/dev/null]
+      puts %x[ecasound #{params.flatten.join(' ')} | grep ERROR]
     end
 
     def self.execute(params)

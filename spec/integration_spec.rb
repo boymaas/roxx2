@@ -100,7 +100,7 @@ module Roxx
               audio_file :sound_2, :path => 'spec/data/test.mp3'
             end
             track :voice do
-              [5,10,15,20].each do |offset| 
+              [0,5,10,15,20].each do |offset| 
                 sound :sound_1, :offset =>  offset, :duration => 5
               end
             end
