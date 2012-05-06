@@ -108,7 +108,7 @@ module Roxx::Ecasound
       it "generated the correct params" do
         idx_generator.stub(:next_idx => 1)
         subject.to_params.should == 
-          "-a:1 -i playat,5.0,select,10.0,15.0,path/to/audio.mp3 -ea:50" 
+          "-a:1 -i playat,5.0,select,10.0,15.0,path/to/audio.mp3 -ea:50.0" 
       end
       
     end

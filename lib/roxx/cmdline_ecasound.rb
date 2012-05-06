@@ -7,9 +7,6 @@ module Roxx
     end
 
     def execute(params)
-      params.flatten.each do |p|
-        puts p
-      end
       %x[ecasound #{params.flatten.join(' ')} >/dev/null]
     end
 
