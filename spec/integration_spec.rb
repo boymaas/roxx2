@@ -54,6 +54,23 @@ module Roxx
         specify { subject.tracks.count.should == 1 }
         specify { subject.tracks.first.should be_an_instance_of(Track) }
 
+        context "when combining mixes" do
+          context "given: we pass the original audio_mix and library" do
+            before do 
+              @audio_mix, @library = Roxx::audio_mix :audio_mix => @audio_mix, :library => @library  do
+                track :extra do
+                  sound :sound_2, :offset => 0, :duration => 10
+                end
+              end
+            end 
+
+            it "then track should be added to original audiomix" do
+               @audio_mix.tracks.count.should == 2 
+            end
+
+          end
+        end
+
         context ".sounds" do
           subject { @audio_mix.tracks.first }
 
