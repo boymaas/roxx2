@@ -1,11 +1,11 @@
-require 'roxx/ecasound'
+require 'roxx/cmdline_ecasound'
 
 module Roxx
   class AudioFileInfo
     attr_reader :path
     def initialize(path, cmdline_sound_tool=nil)
       @path = Pathname.new( path )
-      @cmdline_sound_tool = cmdline_sound_tool || Ecasound.new
+      @cmdline_sound_tool = cmdline_sound_tool || CmdlineEcasound.new
       @duration = nil
     end
 

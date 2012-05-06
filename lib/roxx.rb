@@ -10,7 +10,7 @@ require 'roxx/track'
 require 'roxx/audio_mix'
 
 require 'roxx/cmdline_sound_tool'
-require 'roxx/ecasound'
+require 'roxx/cmdline_ecasound'
 
 require 'roxx/dsl'
 

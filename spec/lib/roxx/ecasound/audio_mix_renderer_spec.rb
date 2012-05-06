@@ -168,13 +168,5 @@ module Roxx::Ecasound
     end
   end
 
-  describe AudioMixRenderer do
-    context "#initialize" do
-      it "takes an audio_mix" do
-        audio_mix = stub(:audio_mix) 
-        described_class.new(audio_mix)
-      end
-    end
-  end
 
 end
