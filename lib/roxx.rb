@@ -1,18 +1,18 @@
 require "roxx/version"
 
-require 'roxx/audio_file.rb'
-require 'roxx/audio_file_info.rb'
-require 'roxx/audio_file_snippet.rb'
-require 'roxx/library.rb'
-require 'roxx/logger.rb'
-require 'roxx/sound.rb'
-require 'roxx/track.rb'
-require 'roxx/audio_mix.rb'
+require 'roxx/audio_file'
+require 'roxx/audio_file_info'
+require 'roxx/audio_file_snippet'
+require 'roxx/library'
+require 'roxx/logger'
+require 'roxx/sound'
+require 'roxx/track'
+require 'roxx/audio_mix'
 
-require 'roxx/cmdline_sound_tool.rb'
-require 'roxx/ecasound.rb'
+require 'roxx/cmdline_sound_tool'
+require 'roxx/ecasound'
 
-require 'roxx/dsl.rb'
+require 'roxx/dsl'
 
 module Roxx
   # Your code goes here...
