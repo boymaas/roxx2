@@ -1,9 +1,9 @@
 require 'roxx'
 
 module Roxx
-  describe "creating an audiomix" do
+  describe "creating and rendering an audiomix" do
 
-    context "#audio_mix" do
+    context ".audio_mix" do
       before do
         @audio_mix, @library, @logger = 
           Roxx::audio_mix do 
@@ -17,7 +17,11 @@ module Roxx
             track :voice do
               sound :sound_1, :offset =>  0, :duration => 20
               sound :sound_2, :offset => 0, :duration => 10
-              volume = 1
+              volume 0.2
+            end
+            track :overtone do
+              sound :sound_3
+              volume 0.4
             end
           end
       end
@@ -53,7 +57,7 @@ module Roxx
       context "audiomix" do
         subject { @audio_mix }
 
-        specify { subject.tracks.count.should == 1 }
+        specify { subject.tracks.count.should == 2 }
         specify { subject.tracks.first.should be_an_instance_of(Track) }
 
         context "when combining mixes" do
@@ -67,10 +71,17 @@ module Roxx
             end 
 
             it "then track should be added to original audiomix" do
-               @audio_mix.tracks.count.should == 2 
+               @audio_mix.tracks.count.should == 3 
             end
 
           end
+        end
+
+        context ".tracks" do
+          subject { @audio_mix.tracks }
+          
+          specify { subject[0].volume.should == 0.2 }
+          specify { subject[1].volume.should == 0.4 }
         end
 
         context ".sounds" do
@@ -81,7 +92,7 @@ module Roxx
         end
       end
 
-      context "renderer" do
+      context ".ecasound_render" do
         before do
           @audio_mix, = Roxx::audio_mix do 
             library do
@@ -98,10 +109,6 @@ module Roxx
               volume 0.2
             end
           end
-        end
-
-        it "volume on track should be 0.2" do
-          @audio_mix.tracks[1].volume.should == 0.2
         end
 
         it "renders the audio_mix" do
