@@ -23,29 +23,27 @@ module Roxx
       context "library" do
         subject { @library } 
 
-        it "stored sound_1" do
-          subject.fetch(:sound_1).should be_an_instance_of(AudioFile)
+        specify { subject.fetch(:sound_1).should be_an_instance_of(AudioFile) }
+
+        context "sound_1" do
+          subject { @library.fetch(:sound_1) }
+
+          specify { subject.duration.should be_within(0.04).of(295.393) }
         end
 
-        it "determines correct duration of test mp3" do
-          sound_1 = subject.fetch(:sound_1)
-          sound_1.duration_in_seconds.should be_within(0.04).of(295.393)
-        end
       end
 
       context "audiomix" do
         subject { @audio_mix }
-        it "defined and of correct type" do
-          subject.tracks.count.should == 1
-          subject.tracks.first.should be_an_instance_of(Track)
-        end
+
+        specify { subject.tracks.count.should == 1 }
+        specify { subject.tracks.first.should be_an_instance_of(Track) }
 
         context ".sounds" do
           subject { @audio_mix.tracks.first }
-          it "defined and of correct type" do
-            subject.sounds.count.should == 1
-            subject.sounds.first.should be_an_instance_of(Sound)
-          end
+
+          specify { subject.sounds.count.should == 1 }
+          specify { subject.sounds.first.should be_an_instance_of(Sound) }
         end
       end
 

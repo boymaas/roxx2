@@ -36,6 +36,11 @@ module Roxx
         path       = resolve_path(path)
         audio_file = AudioFile.cache(path)
 
+        # duration is specified, transfor into a snippet
+        unless offset.nil?
+          audio_file = AudioFileSnippet.cut(audio_file, offset, duration)
+        end
+
         @library.set name, audio_file
       end
 

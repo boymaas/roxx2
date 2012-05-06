@@ -14,14 +14,14 @@ describe Roxx::AudioFileInfo do
       audio_file_info.path.should be_an_instance_of(Pathname)
     end
   end
-  context "#duration_in_seconds" do
+  context "#duration" do
     it "calculates correct duration" do
       cmdline_soundtool = stub(:cmdline_sound_tool)
       cmdline_soundtool.should_receive(:determine_duration_in_seconds).and_return(2)
 
       audio_file_info = described_class.new('spec/to/audiofile.wav', cmdline_soundtool)
 
-      audio_file_info.duration_in_seconds.should == 2
+      audio_file_info.duration.should == 2
     end
   end
 end

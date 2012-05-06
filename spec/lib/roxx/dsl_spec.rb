@@ -3,6 +3,7 @@ require 'roxx/library'
 require 'roxx/track'
 require 'roxx/audio_mix'
 require 'roxx/audio_file'
+require 'roxx/audio_file_snippet'
 require 'roxx/audio_file_info'
 require 'roxx/logger'
 
@@ -39,6 +40,35 @@ module Roxx::Dsl
 
           subject.perform do
             audio_file sound_name, {:path => sound_path}
+          end
+        end
+        context "and: position and duration are specified" do
+          it "then: an AudioFileSnippet is added to the library" do
+            an_audio_file = stub(:an_audio_file)
+            an_audio_file_snippet = stub(:an_audio_file_snippet)
+
+            # given: sound_path is sold
+            subject.should_receive(:resolve_path).and_return(stub)
+
+            Roxx::AudioFile.should_receive(:cache).
+              and_return(an_audio_file)
+
+            Roxx::AudioFileSnippet.
+              should_receive(:cut).
+              with(an_audio_file, 10, 20).
+              and_return(an_audio_file_snippet)
+
+            library.should_receive(:set).
+              with(:sound_1, an_audio_file_snippet)
+
+
+            subject.perform do
+              audio_file :sound_1, {
+                :path => 'path/to/nonexisting.mp3',
+                :offset => 10,
+                :duration => 20
+              }
+            end
           end
         end
       end
@@ -125,7 +155,7 @@ module Roxx::Dsl
 
           expect {
             subject.perform do
-              sound :sound_1
+            sound :sound_1
             end
           }.to raise_error( Roxx::Library::SoundNotFound )
         end

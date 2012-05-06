@@ -33,15 +33,15 @@ module Roxx
       end
     end
 
-    context "#duration_in_seconds" do
+    context "#duration" do
       it "calculated correct duration" do
         audio_file_info = stub(:audio_file_info)
-        audio_file_info.should_receive(:duration_in_seconds).and_return(10)
+        audio_file_info.should_receive(:duration).and_return(10)
         Roxx::AudioFileInfo.stub(:new).and_return(audio_file_info)
 
         audio_file = described_class.new('path/to/audiofile.wav')
 
-        audio_file.duration_in_seconds.should == 10
+        audio_file.duration.should == 10
       end
     end
   end

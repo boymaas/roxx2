@@ -1,7 +1,7 @@
 require 'roxx/audio_file_snippet'
 
 describe Roxx::AudioFileSnippet do
-  let(:audio_file) { stub(:audio_file, :duration_in_seconds => 10.0) }
+  let(:audio_file) { stub(:audio_file, :duration => 10.0) }
   context "#cut" do
     subject { described_class.cut(audio_file, 0.0, 10.0) }
 
@@ -15,11 +15,18 @@ describe Roxx::AudioFileSnippet do
       subject.offset.should == 0.0
     end
   end
-  context "#duration_in_seconds" do
+  context "#duration" do
     subject { described_class.cut(audio_file, 0.0, 10.0) }
 
     it "has a duration" do
-      subject.duration_in_seconds.should == 10.0
+      subject.duration.should == 10.0
+    end
+    context "given: no duration is specified" do
+      let(:audio_file) { stub(:audio_file, :duration => 50.0) }
+      subject { described_class.cut(audio_file, 10.0, nil) }
+
+      specify { subject.duration.should == 40 }
+        
     end
   end
 end

@@ -9,8 +9,8 @@ module Roxx
       @audio_file_info = AudioFileInfo.new(path)
     end
 
-    def duration_in_seconds
-      @audio_file_info.duration_in_seconds
+    def duration
+      @audio_file_info.duration
     end
 
     class << self
