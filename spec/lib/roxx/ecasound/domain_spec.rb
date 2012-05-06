@@ -1,4 +1,4 @@
-require 'roxx/ecasound/audio_mix_renderer'
+require 'roxx/ecasound/domain'
 
 # Ecasound renderer
 # =================
