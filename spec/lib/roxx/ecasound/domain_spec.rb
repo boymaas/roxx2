@@ -106,7 +106,7 @@ module Roxx::Ecasound
       end
 
       it "generated the correct params" do
-        idx_generator.stub(:idx => 1)
+        idx_generator.stub(:next_idx => 1)
         subject.to_params.should == 
           "-a:1 -i playat,5.0,select,10.0,15.0,path/to/audio.mp3 -ea:50" 
       end
@@ -142,27 +142,31 @@ module Roxx::Ecasound
       end
       context "given: 1 channel available"  do
         it "returns the correct parameter" do
-          subject.channels << stub(:channel, :idx => 2,
+          subject.channels << stub(:channel, :idx => 1,
                                    :to_params => [ :channel_params ]) 
-          subject.stub(:idx => 1)
+          subject.stub(:loopback_idx => 2)
+          subject.stub(:idx => 3)
 
-          subject.to_params.should == [[ :channel_params ], "-a:2 -o loop,1 -ea:100"]
+          subject.to_params.should == 
+            [[:channel_params], "-a:1 -o loop,2", "-a:3 -i loop,2 -ea:100"]
         end
 
       end
       context "given: >1 channels available" do
         it "returns the correct parameters" do
-          (2..3).map do |idx|
+          (1..2).map do |idx|
             subject.channels << stub(:channel, :idx => idx,
                                      :to_params => [ :channel_params ]) 
           end
 
-          subject.stub(:idx => 1)
+          subject.stub(:loopback_idx => 3)
+          subject.stub(:idx => 4)
 
-          subject.to_params.should == [
-            [ :channel_params ],
-            [ :channel_params ],
-            "-a:2,3 -o loop,1 -ea:100"]
+          subject.to_params.should == 
+            [[:channel_params],
+             [:channel_params],
+             "-a:1,2 -o loop,3",
+             "-a:4 -i loop,3 -ea:100"]
         end
       end
     end

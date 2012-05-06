@@ -47,16 +47,20 @@ module Roxx
        let(:sound) { stub(:sound) }
        let(:track) do
          stub(:track,
+              :volume => 0.5,
              :sounds => [sound])
        end
 
-       it "instantialtes the soundchannels" do
+       let(:track_loopback) { TrackLoopback.new(track, idx_generator) }
+
+       before do
          SoundChannel.should_receive(:new).
            with(sound, idx_generator).
            and_return(stub(:channel))
-
-         TrackLoopback.new(track, idx_generator)
        end
+
+       specify { track_loopback.volume.should == 0.5}
+
       end
     end
 

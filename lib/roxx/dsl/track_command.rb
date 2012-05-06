@@ -20,6 +20,10 @@ module Roxx
         @logger.log "cannot find sound [#{name}] in library"
         raise
       end
+
+      def volume level
+        @track.volume = level
+      end
     end
   end
 end

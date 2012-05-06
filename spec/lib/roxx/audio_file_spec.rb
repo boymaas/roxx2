@@ -44,5 +44,10 @@ module Roxx
         audio_file.duration.should == 10
       end
     end
+
+    context "#offset" do
+      let(:audio_file) { described_class.new('path/to/audiofile.wav') }
+      specify {audio_file.offset.should == 0.0}
+    end
   end
 end

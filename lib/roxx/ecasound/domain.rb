@@ -24,9 +24,16 @@ module Roxx
         @idx ||= @idx_generator.next_idx
       end
 
+      def loopback_idx
+        @loopback_idx ||= @idx_generator.next_idx
+      end
+
+
       def to_params
         return [] if @channels.empty?
-        @channels.map(&:to_params) + ["-a:#{@channels.map(&:idx) * ','} -o loop,#{idx} -ea:#{volume * 100}"]
+        @channels.map(&:to_params) + 
+          ["-a:#{@channels.map(&:idx) * ','} -o loop,#{loopback_idx}"] +
+          ["-a:#{idx} -i loop,#{loopback_idx} -ea:#{volume * 100}"]
       end
     end
 
@@ -41,6 +48,7 @@ module Roxx
         @offset = 0.0
         @duration = nil
       end
+
       def idx
         @idx ||= @idx_generator.next_idx
       end
@@ -56,8 +64,8 @@ module Roxx
       end
 
       def to_params
-          [ "-a:1 -i playat,#{start_at},select,#{offset},#{duration},#{audio_file_path}",
-            "-ea:50" ] * ' '
+          [ "-a:#{idx} -i playat,#{start_at},select,#{offset},#{duration},#{audio_file_path}",
+            "-ea:#{volume * 100}" ] * ' '
       end
 
     end

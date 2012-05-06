@@ -1,7 +1,7 @@
 require 'roxx/audio_file_snippet'
 
 describe Roxx::AudioFileSnippet do
-  let(:audio_file) { stub(:audio_file, :duration => 10.0) }
+  let(:audio_file) { stub(:audio_file, :duration => 10.0, :path => 'path/to/audio.mp3') }
   context "#cut" do
     subject { described_class.cut(audio_file, 0.0, 10.0) }
 
@@ -28,5 +28,10 @@ describe Roxx::AudioFileSnippet do
       specify { subject.duration.should == 40 }
         
     end
+  end
+  context "#path" do
+    subject { described_class.cut(audio_file, 0.0, 10.0) }
+
+    specify {subject.path.should == 'path/to/audio.mp3'}
   end
 end

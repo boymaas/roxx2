@@ -2,11 +2,12 @@ require 'md5'
 
 module Roxx
   class AudioFile
-    attr_reader :path
+    attr_reader :path, :offset
 
     def initialize(path)
       @path = Pathname.new(path)
       @audio_file_info = AudioFileInfo.new(path)
+      @offset = 0.0
     end
 
     def duration

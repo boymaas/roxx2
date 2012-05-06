@@ -16,5 +16,9 @@ module Roxx
       @duration || (@audio_file.duration - @offset)
     end
 
+    def path
+      @audio_file.path
+    end
+
   end
 end
