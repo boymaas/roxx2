@@ -4,8 +4,8 @@ require File.expand_path('../lib/roxx/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Boy Maas"]
   gem.email         = ["boy.maas@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{A small dsl to render audio mixes using the ecasound commandline tool.}
+  gem.summary       = %q{DSL to render audiofiles}
   gem.homepage      = ""
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
