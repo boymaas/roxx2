@@ -1,6 +1,4 @@
 require 'roxx'
-require 'roxx/ecasound/domain'
-require 'roxx/ecasound/renderer'
 
 module Roxx
   describe "creating an audiomix" do
@@ -107,8 +105,7 @@ module Roxx
         end
 
         it "renders the audio_mix" do
-          renderer = Ecasound::AudioMixRenderer.new(@audio_mix)
-          renderer.render('spec/output/target.mp3').should == ''
+          Roxx::ecasound_render(@audio_mix, 'spec/output/target.mp3')
         end
 
       end

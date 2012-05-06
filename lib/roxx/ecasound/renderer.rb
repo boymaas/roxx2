@@ -1,4 +1,10 @@
 module Roxx
+
+  def self.ecasound_render(audio_mix, target)
+    renderer = Ecasound::AudioMixRenderer.new(audio_mix)
+    renderer.render(target)
+  end
+
   module Ecasound
     class AudioMixRenderer
       def initialize(audio_mix, idx_generator=nil)
