@@ -27,7 +27,7 @@ module Roxx
 
       def to_params
         return [] if @channels.empty?
-        @channels.map(&:to_params) + ["-a:#{@channels.map(&:idx) * ','} -o #{idx}"]
+        @channels.map(&:to_params) + ["-a:#{@channels.map(&:idx) * ','} -o #{idx} -ea:#{volume * 100}"]
       end
     end
 

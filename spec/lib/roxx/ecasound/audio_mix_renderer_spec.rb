@@ -98,7 +98,7 @@ module Roxx::Ecasound
                                    :to_params => [ :channel_params ]) 
           subject.stub(:idx => 1)
 
-          subject.to_params.should == [[ :channel_params ], "-a:2 -o 1"]
+          subject.to_params.should == [[ :channel_params ], "-a:2 -o 1 -ea:100"]
         end
         
       end
@@ -114,10 +114,9 @@ module Roxx::Ecasound
           subject.to_params.should == [
             [ :channel_params ],
             [ :channel_params ],
-            "-a:2,3 -o 1"]
+            "-a:2,3 -o 1 -ea:100"]
         end
       end
-      
     end
   end
 
