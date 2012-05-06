@@ -19,3 +19,4 @@ tmp
 lib/roxx/dsl_spike.rb
 .DS_Store
 tags
+spec/output/*.mp3
