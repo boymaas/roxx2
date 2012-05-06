@@ -65,7 +65,55 @@ module Roxx::Ecasound
       subject.next_idx.should == 2
     end
   end
-  
+
+  describe Channel do
+    let(:idx_generator) { stub(:idx_generator) }
+    subject { described_class.new(idx_generator)}
+
+    specify {subject.volume.should == 1}
+    specify {subject.audio_file_path.should be_nil}
+    specify {subject.start_at.should == 0.0}
+    specify {subject.offset.should == 0.0}
+    specify {subject.duration.should == nil}
+
+    context "#factor" do
+      subject do
+        described_class.factor(idx_generator, 5.0, "path/to/audio.mp3", 10.0, 15.0, 0.5)
+      end
+      specify {subject.volume.should == 0.5}
+      specify {subject.audio_file_path.should == "path/to/audio.mp3"}
+      specify {subject.start_at.should == 5.0}
+      specify {subject.offset.should == 10.0}
+      specify {subject.duration.should == 15.0}
+    end
+
+    context "#idx" do
+      it "calls next_idx to get new id" do
+        idx_generator.should_receive(:next_idx).and_return(1)
+        subject.idx.should == 1
+      end
+      it "caches the previous one" do
+        idx_generator.stub(:next_idx=>1)
+        subject.idx # call once
+        idx_generator.should_not_receive(:next_idx)
+        subject.idx.should == 1
+      end
+    end
+
+    context "#to_params" do
+      subject do
+        described_class.factor(idx_generator, 5.0, "path/to/audio.mp3", 10.0, 15.0, 0.5)
+      end
+
+      it "generated the correct params" do
+        idx_generator.stub(:idx => 1)
+        subject.to_params.should == 
+          "-a:1 -i playat,5.0,select,10.0,15.0,path/to/audio.mp3 -ea:50" 
+      end
+      
+    end
+  end
+
   describe Loopback do
     let(:idx_generator) { stub(:idx_generator) }
     subject { described_class.new(idx_generator)}
@@ -100,7 +148,7 @@ module Roxx::Ecasound
 
           subject.to_params.should == [[ :channel_params ], "-a:2 -o loop,1 -ea:100"]
         end
-        
+
       end
       context "given: >1 channels available" do
         it "returns the correct parameters" do
