@@ -1,3 +1,4 @@
+require 'roxx/sound'
 require 'roxx/ecasound/domain'
 require 'roxx/ecasound/renderer'
 require 'roxx/cmdline_ecasound'
@@ -69,11 +70,16 @@ module Roxx
     describe SoundChannel do
       context "#initialize" do
         let(:idx_generator) { stub(:idx_generator) }
+        let(:source) { stub(:source, :path => 'path/to/audio.mp3', :offset => 15) }
         let(:sound) do
           stub(:sound, 
                :position => 5,
                :duration => 10,
-               :source => stub(:source, :path => 'path/to/audio.mp3', :offset => 15))
+               :source => source)
+        end
+
+        before do
+          Source.should_receive(:prepare).and_return(source)
         end
 
         subject { described_class.new(sound, idx_generator) }
@@ -86,22 +92,30 @@ module Roxx
       end
 
     end
-    describe PreparedSound do
+    describe Source do
+      let(:source) { stub(:source, 
+                          :duration => 20,
+                          :offset => 0.0,
+                          :path => 'path/to/audio.mp3') }
+
+      let(:cut_mp3_path) { stub(:cut_mp3_path) }
+
+      context "given: initialized object" do
+        before do
+          source.stub(:has_offset? => false)
+        end
+        subject { described_class.prepare(source) }
+        specify { subject.path.should == 'path/to/audio.mp3' }
+        specify { subject.offset.should == 0.0 }
+        specify { subject.duration.should == 20 }
+      end
+
       # a prepared sound recognizes
       # mp3 files with an offset. If 
       # it encounters an mp3 file with offset
       # it will cut the existing mp3 and wrap it
       # in an AudioFile object as source
-      context "#prepare" do
-        let(:sound) { stub(:sound) }
-        let(:source) { stub(:source, 
-                              :duration => 20,
-                              :offset => 0.0,
-                              :path => 'path/to/audio.mp3') }
-
-        let(:cut_mp3_path) { stub(:cut_mp3_path) }
-        subject { described_class.new(sound) }
-
+      context ".prepare" do
         context "given: source is NOT an mp3 file" do
           before do
             source.stub(:is_a_mp3? => false)
@@ -126,6 +140,7 @@ module Roxx
               and_return(cut_mp3_path)
 
             subject.prepare(source)
+            subject.path.should == cut_mp3_path
           end
 
           it "does NOT cut an mp3 file when there offset" do
@@ -134,6 +149,7 @@ module Roxx
             CmdlineEcasound.should_not_receive(:cut)
 
             subject.prepare(source)
+            subject.path.should == 'path/to/audio.mp3'
           end
         end
       end

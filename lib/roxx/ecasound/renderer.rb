@@ -46,28 +46,34 @@ module Roxx
 
     class SoundChannel < DelegateClass(Channel)
       def initialize(sound, idx_generator)
-        @sound = sound
+        source = Source.prepare(sound.source)
         @channel = 
           Channel.factor(idx_generator,
                          sound.position,
-                         sound.source.path,
-                         sound.source.offset,
+                         source.path,
+                         source.offset,
                          sound.duration,
                          volume=1.0)
         super(@channel)
       end
     end
 
-    class PreparedSound
-      def initialize(sound)
-      end
-      
+    class Source
+      attr_reader :path, :offset, :duration
+
       def prepare(source)
+        @path = source.path
         if source.has_offset? and source.is_a_mp3?
-          CmdlineEcasound.cut(source.path, source.offset, source.duration)
+          @path = CmdlineEcasound.cut(source.path, source.offset, source.duration)
         end
+        @offset = 0.0
+        @duration = source.duration
+        self
       end
-      
+
+      def self.prepare(source)
+        new.prepare(source)
+      end
     end
   end
 end
