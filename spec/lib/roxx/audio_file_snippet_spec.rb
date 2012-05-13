@@ -8,6 +8,27 @@ describe Roxx::AudioFileSnippet do
     it { should be_an_instance_of(described_class) }
     
   end
+
+  context "#has_offset?" do
+    context "given offset > 0.0" do
+      subject { described_class.cut(audio_file, 0.1, 10.0) }
+      specify { subject.has_offset?.should == true }
+    end
+    context "given offset == 0.0" do
+      subject { described_class.cut(audio_file, 0.0, 10.0) }
+      specify { subject.has_offset?.should == false }
+    end
+  end
+
+  context "#is_a_mp3?" do
+    subject { described_class.cut(audio_file, 0.0, 10.0) }
+    it "should delegate to audio_file" do
+      answer = stub(:answer)
+      audio_file.should_receive(:is_a_mp3?).and_return(answer)  
+      subject.is_a_mp3?.should == answer
+    end
+  end
+
   context "#offset" do
     subject { described_class.cut(audio_file, 0.0, 10.0) }
 
