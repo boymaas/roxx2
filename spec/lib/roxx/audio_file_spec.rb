@@ -4,6 +4,8 @@ require 'roxx/audio_file'
 module Roxx
   describe AudioFile do
 
+    let(:audio_file) { described_class.new('path/to/audiofile.wav') }
+
     context ".cache" do
       let(:audio_file) { described_class.cache 'path/to/audiofile.wav' }
       it "returns an AudioFile" do
@@ -22,8 +24,26 @@ module Roxx
       end
     end
 
+    context "#is_a_mp3?" do
+      context "given: is a mp3" do
+        let(:audio_file) { described_class.new('path/to/audiofile.mp3') }
+
+        specify { audio_file.is_a_mp3?.should be_true }
+
+      end
+      context "given: is NOT a mp3" do
+        let(:audio_file) { described_class.new('path/to/audiofile.wav') }
+
+        specify { audio_file.is_a_mp3?.should be_false }
+      end
+    
+    end
+
+    context "#has_offset?" do
+      specify {audio_file.has_offset?.should be_false}
+    end
+
     context "#path" do
-      let(:audio_file) { described_class.new('path/to/audiofile.wav') }
 
       it "has a path" do
         audio_file.path.to_s.should == 'path/to/audiofile.wav'
