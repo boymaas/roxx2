@@ -57,5 +57,17 @@ module Roxx
         super(@channel)
       end
     end
+
+    class PreparedSound
+      def initialize(sound)
+      end
+      
+      def prepare(source)
+        if source.has_offset? and source.is_a_mp3?
+          CmdlineEcasound.cut(source.path, source.offset, source.duration)
+        end
+      end
+      
+    end
   end
 end

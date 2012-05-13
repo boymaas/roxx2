@@ -1,5 +1,7 @@
 require 'roxx/ecasound/domain'
 require 'roxx/ecasound/renderer'
+require 'roxx/cmdline_ecasound'
+
 
 module Roxx
   module Ecasound
@@ -84,5 +86,58 @@ module Roxx
       end
 
     end
+    describe PreparedSound do
+      # a prepared sound recognizes
+      # mp3 files with an offset. If 
+      # it encounters an mp3 file with offset
+      # it will cut the existing mp3 and wrap it
+      # in an AudioFile object as source
+      context "#prepare" do
+        let(:sound) { stub(:sound) }
+        let(:source) { stub(:source, 
+                              :duration => 20,
+                              :offset => 0.0,
+                              :path => 'path/to/audio.mp3') }
+
+        let(:cut_mp3_path) { stub(:cut_mp3_path) }
+        subject { described_class.new(sound) }
+
+        context "given: source is NOT an mp3 file" do
+          before do
+            source.stub(:is_a_mp3? => false)
+          end
+          it "does not cut when there is offset" do
+            source.stub(:has_offset? => true)
+            CmdlineEcasound.should_not_receive(:cut)
+
+            subject.prepare(source)
+          end
+        end
+
+        context "given: source is an mp3 file" do
+          before do
+            source.stub(:is_a_mp3? => true)
+          end
+          it "cuts a mp3 file when source has an offset" do
+            source.stub(:has_offset? => true)
+
+            CmdlineEcasound.should_receive(:cut).
+              with(source.path, source.offset, source.duration).
+              and_return(cut_mp3_path)
+
+            subject.prepare(source)
+          end
+
+          it "does NOT cut an mp3 file when there offset" do
+            source.stub(:has_offset? => false)
+
+            CmdlineEcasound.should_not_receive(:cut)
+
+            subject.prepare(source)
+          end
+        end
+      end
+    end
   end
+
 end
