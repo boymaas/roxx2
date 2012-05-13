@@ -14,6 +14,14 @@ module Roxx
       @audio_file_info.duration
     end
 
+    def has_offset?
+      false
+    end
+
+    def is_a_mp3?
+      @path.extname.downcase == '.mp3'
+    end
+
     class << self
       def cache path
         @cache ||= {}

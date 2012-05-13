@@ -97,10 +97,12 @@ module Roxx
           @audio_mix, = Roxx::audio_mix do 
             library do
               audio_file :sound_1, :path => 'spec/data/test.mp3'
-              audio_file :sound_2, :path => 'spec/data/test.mp3'
+              audio_file :sound_2, :path => 'spec/data/test.mp3',
+                :offset => 20, :duration => 10
+
             end
             track :voice do
-              [5,10,15,20].each do |offset| 
+              [0,5,10,15,20].each do |offset| 
                 sound :sound_1, :offset =>  offset, :duration => 5
               end
             end

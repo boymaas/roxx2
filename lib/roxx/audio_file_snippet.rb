@@ -12,6 +12,14 @@ module Roxx
       new(audio_file, offset, duration)
     end
 
+    def has_offset?
+      @offset > 0.0
+    end
+
+    def is_a_mp3?
+      @audio_file.is_a_mp3?
+    end
+
     def duration 
       @duration || (@audio_file.duration - @offset)
     end
